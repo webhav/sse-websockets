@@ -1,0 +1,48 @@
+<html>
+	<title>Web Sockets Demo</title>
+	<head></head>
+
+
+	<body>
+	
+		<h1>Web Sockets Demo</h1>
+	
+		<form id="questionForm">
+			<textarea rows="4" cols="75" name="question" id="question"></textarea>
+		</form>
+		
+		<button id="sendQuestionButton">Submit</button>
+		
+		<div id="questions">
+		</div>
+	
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+		<script type="text/javascript" src="js/sockjs.min.js"></script>
+		<script type="text/javascript" src="js/stomp.min.js"></script>
+	
+	
+		<script>
+		
+			var ws;
+		
+			$(function(){
+				$('#sendQuestionButton').click(function(){
+					submitForm();
+				})
+				
+				ws = new SockJS('/ws-questions');
+				
+				ws.onmessage = function(data) {
+					$('#questions').prepend('<div class="question">' + data.data + '</div>');
+				};
+				
+			});
+		
+			function submitForm() {
+				ws.send($('#question').val());
+				$('#question').val('');
+			}
+		</script>
+	
+	</body>
+</html>

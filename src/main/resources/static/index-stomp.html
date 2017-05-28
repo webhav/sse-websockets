@@ -1,0 +1,61 @@
+<html>
+	<head>
+		<title>Web Sockets Demo</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+	</head>
+
+
+	<body>
+	
+		<h1>Stomp Over Web Sockets Demo</h1>
+	
+		<form id="questionForm">
+			<textarea rows="4" cols="75" name="question" id="question"></textarea>
+		</form>
+		
+		<button id="sendQuestionButton">Submit</button>
+		
+		<div id="questions">
+		</div>
+	
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
+		<script type="text/javascript" src="js/sockjs.min.js"></script>
+		<script type="text/javascript" src="js/stomp.min.js"></script>
+	
+	
+		<script>
+		
+			var ws;
+			var stompClient;
+			
+			$(function(){
+				$('#sendQuestionButton').click(function(){
+					submitForm();
+				})
+				
+				ws = new SockJS('/ws-questions');
+				stompClient = Stomp.over(ws);
+				
+				stompClient.connect({}, function(frame){
+					stompClient.subscribe("/topic/questions", function(message){
+						$('#questions').prepend('<div class="question">' + message.body + '</div>');
+					});
+					stompClient.subscribe("/user/queue/private", function(message){
+						Materialize.toast(message.body, 6000);
+					});
+				}, function(error){
+					console.log("Stomp Protocol Error!!!");
+				});
+				
+				
+			});
+		
+			function submitForm() {
+				stompClient.send("/app/questions", {}, $('#question').val());
+				$('#question').val('');
+			}
+		</script>
+	
+	</body>
+</html>

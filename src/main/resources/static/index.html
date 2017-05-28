@@ -1,0 +1,46 @@
+<html>
+	<title>Server Sent Events Demo</title>
+	<head></head>
+
+
+	<body>
+	
+		<h1>Server Sent Events Demo</h1>
+	
+		<form id="questionForm">
+			<textarea rows="4" cols="75" name="question" id="question"></textarea>
+		</form>
+		
+		<button id="sendQuestionButton">Submit</button>
+		
+		<div id="questions">
+		</div>
+	
+		<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+		<script type="text/javascript" src="js/sockjs.min.js"></script>
+		<script type="text/javascript" src="js/stomp.min.js"></script>
+	
+	
+		<script>
+		
+			$(function(){
+				$('#sendQuestionButton').click(function(){
+					submitForm();
+				})
+				
+				var source = new EventSource('/questions');
+				
+				source.addEventListener('spring', function(event){
+					$('#questions').prepend('<div class="question">' + event.data + '</div>');
+				});
+				
+			});
+		
+			function submitForm() {
+				$.post('/new-question', $('#questionForm').serialize());
+				$('#question').val('');
+			}
+		</script>
+	
+	</body>
+</html>
